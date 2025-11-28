@@ -32,16 +32,15 @@ CREATE TABLE IF NOT EXISTS scraping_logs (
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(255),
-    status VARCHAR(50) DEFAULT 'active',
-    last_used TIMESTAMP NULL,
-    rate_limit_reset TIMESTAMP NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Note: This application uses the 'data_login' table for account management
+-- The data_login table should have the following structure:
+-- CREATE TABLE IF NOT EXISTS data_login (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     name VARCHAR(255) NOT NULL,
+--     password VARCHAR(255) NOT NULL,
+--     valid TINYINT DEFAULT 0,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 CREATE TABLE IF NOT EXISTS keywords (
     id INT AUTO_INCREMENT PRIMARY KEY,

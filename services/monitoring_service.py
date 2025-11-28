@@ -1,5 +1,6 @@
 from utils.database import get_connection
 from config import db_config
+from mysql.connector import Error
 
 def get_dashboard_stats():
     """Get global system statistics"""
@@ -37,7 +38,7 @@ def get_dashboard_stats():
     return stats
 
 def get_account_health():
-    """Get status of all accounts"""
+    """Get status of all accounts from data_login table"""
     conn = None
     cursor = None
     accounts = []
@@ -46,19 +47,20 @@ def get_account_health():
         conn = get_connection(db_config)
         cursor = conn.cursor(dictionary=True)
         
-        cursor.execute("""
-            SELECT username, status, last_used, rate_limit_reset 
-            FROM accounts 
-            ORDER BY last_used DESC
-        """)
+        query = """
+            SELECT id, name, valid, created_at
+            FROM data_login 
+            ORDER BY created_at DESC
+        """
+        cursor.execute(query)
         accounts = cursor.fetchall()
         
-    except Exception as e:
+    except Error as e:
         print(f"Error getting accounts: {e}")
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
-        
+    
     return accounts
 
 def get_recent_logs(limit=10):

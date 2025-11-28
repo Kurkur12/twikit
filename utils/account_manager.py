@@ -3,7 +3,7 @@ from mysql.connector import Error
 from datetime import datetime
 
 def get_active_account(db_config):
-    """Get a random active account that is not rate limited"""
+    """Get a random active account from data_login table"""
     conn = None
     cursor = None
     account = None
@@ -13,20 +13,14 @@ def get_active_account(db_config):
         cursor = conn.cursor(dictionary=True)
         
         query = """
-        SELECT * FROM accounts 
-        WHERE status = 'active' 
-        AND (rate_limit_reset IS NULL OR rate_limit_reset < NOW())
-        ORDER BY last_used ASC 
+        SELECT * FROM data_login 
+        WHERE valid = 1
+        ORDER BY RAND()
         LIMIT 1
         """
         
         cursor.execute(query)
         account = cursor.fetchone()
-        
-        if account:
-            update_query = "UPDATE accounts SET last_used = NOW() WHERE id = %s"
-            cursor.execute(update_query, (account['id'],))
-            conn.commit()
             
     except Error as e:
         print(f"Error getting active account: {e}")
@@ -36,8 +30,8 @@ def get_active_account(db_config):
         
     return account
 
-def update_account_status(db_config, username, status, rate_limit_reset=None):
-    """Update account status (e.g. to 'rate_limited' or 'auth_failed')"""
+def update_account_status(db_config, name, valid_status):
+    """Update account valid status in data_login table"""
     conn = None
     cursor = None
     
@@ -45,10 +39,10 @@ def update_account_status(db_config, username, status, rate_limit_reset=None):
         conn = get_connection(db_config)
         cursor = conn.cursor()
         
-        query = "UPDATE accounts SET status = %s, rate_limit_reset = %s WHERE username = %s"
-        cursor.execute(query, (status, rate_limit_reset, username))
+        query = "UPDATE data_login SET valid = %s WHERE name = %s"
+        cursor.execute(query, (valid_status, name))
         conn.commit()
-        print(f"Updated account {username} status to {status}")
+        print(f"Updated account {name} valid status to {valid_status}")
         
     except Error as e:
         print(f"Error updating account status: {e}")
@@ -56,16 +50,16 @@ def update_account_status(db_config, username, status, rate_limit_reset=None):
         if cursor: cursor.close()
         if conn: conn.close()
 
-def add_account(db_config, username, password, email=None):
-    """Helper to add account to DB"""
+def add_account(db_config, name, password):
+    """Helper to add account to data_login table"""
     conn = None
     cursor = None
     try:
         conn = get_connection(db_config)
         cursor = conn.cursor()
         
-        query = "INSERT IGNORE INTO accounts (username, password, email) VALUES (%s, %s, %s)"
-        cursor.execute(query, (username, password, email))
+        query = "INSERT IGNORE INTO data_login (name, password, valid) VALUES (%s, %s, 1)"
+        cursor.execute(query, (name, password))
         conn.commit()
         return cursor.rowcount > 0
     except Error as e:
@@ -75,8 +69,8 @@ def add_account(db_config, username, password, email=None):
         if cursor: cursor.close()
         if conn: conn.close()
 
-def check_username_exists(db_config, username):
-    """Check if a username exists in the database"""
+def check_username_exists(db_config, name):
+    """Check if a username exists in the data_login table"""
     conn = None
     cursor = None
     exists = False
@@ -84,8 +78,8 @@ def check_username_exists(db_config, username):
         conn = get_connection(db_config)
         cursor = conn.cursor()
         
-        query = "SELECT 1 FROM accounts WHERE username = %s"
-        cursor.execute(query, (username,))
+        query = "SELECT 1 FROM data_login WHERE name = %s"
+        cursor.execute(query, (name,))
         exists = cursor.fetchone() is not None
         
     except Error as e:

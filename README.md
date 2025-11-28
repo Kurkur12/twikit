@@ -22,7 +22,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
 ```
 ├── main.py                 # Entry point (Flask App)
 ├── config.py               # Configuration (DB, Ports)
-├── schema.sql              # Database Schema (Tweets, Accounts, Logs, Keywords)
+├── schema.sql              # Database Schema (Tweets, Data_login, Logs, Keywords)
 ├── requirements.txt        # Python Dependencies
 ├── scheduler_job.py        # Background Scheduler (Pro Version)
 │
@@ -56,7 +56,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
         ```
 
 3.  **Seed Data**
-    *   Insert your Twitter accounts into the `accounts` table.
+    *   Insert your Twitter accounts into the `data_login` table.
     *   Insert keywords into the `keywords` table.
 
 4.  **Run the Application**
@@ -77,7 +77,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
         "password": "optional_override"
     }
     ```
-*   **Validation**: Username must exist in the `accounts` table.
+*   **Validation**: Username must exist in the `data_login` table.
 *   **Response**: Structured JSON with summary of success/failed and saved data.
 
 ### 2. Monitoring Dashboard
@@ -85,7 +85,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
 *   **Method**: `GET`
 *   **Response**:
     *   `stats`: Total tweets, success/fail counts.
-    *   `accounts`: List of accounts and their status.
+    *   `accounts`: List of accounts from `data_login` table and their status.
     *   `recent_logs`: Latest system activity.
 
 ## 🤖 Scheduler

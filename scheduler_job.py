@@ -45,17 +45,17 @@ def auto_hit():
         print("⚠️ [Scheduler] No keywords in DB, using fallback.")
         keyword = "teknologi pertanian lang:id" 
 
-    print(f"   👤 Account: {account['username']}")
+    print(f"   👤 Account: {account['name']}")
     print(f"   🔍 Keyword: {keyword}")
 
     # 3. Validate Username in DB
-    if not check_username_exists(db_config, account['username']):
-        print(f"   ❌ Validation Failed: Username '{account['username']}' not found in DB.")
+    if not check_username_exists(db_config, account['name']):
+        print(f"   ❌ Validation Failed: Username '{account['name']}' not found in DB.")
         return
 
     # 4. Prepare Payload
     body = [{
-        "username": account['username'],
+        "username": account['name'],
         "password": account['password'],
         "query": keyword
     }]
