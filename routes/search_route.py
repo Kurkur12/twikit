@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 import asyncio
 from services.twitter_service import search_tweets
 
+from config import db_config
+from utils.database import save_tweets, log_activity
+
 search_bp = Blueprint("search", __name__)
 
 @search_bp.route("/search", methods=["POST"])
@@ -28,6 +31,7 @@ def search():
             results.append({"status": 400, "message": "query, username, password required"})
             summary["failed"] += 1
             summary["error_details"]["validation_error"] = summary["error_details"].get("validation_error", 0) + 1
+            log_activity(db_config, username or "unknown", "failed", "Validation error: missing fields")
             continue
 
         try:
@@ -49,19 +53,26 @@ def search():
                 })
                 summary["failed"] += 1
                 summary["error_details"][error_type] = summary["error_details"].get(error_type, 0) + 1
+                log_activity(db_config, username, "failed", result["error"])
             else:
+                # Save to database
+                saved_count = save_tweets(db_config, result)
+                
                 results.append({
                     "status": 200,
                     "akun_username": username,
                     "status_akun": "active",
-                    "data": result
+                    "data": result,
+                    "saved_to_db": saved_count
                 })
                 summary["success"] += 1
+                log_activity(db_config, username, "success", "Scraping successful", len(result))
 
         except Exception as e:
             results.append({"status": 500, "username": username, "error": str(e)})
             summary["failed"] += 1
             summary["error_details"]["unhandled_exception"] = summary["error_details"].get("unhandled_exception", 0) + 1
+            log_activity(db_config, username, "failed", f"Unhandled exception: {str(e)}")
 
     return jsonify({
         "summary": summary,
