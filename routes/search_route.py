@@ -12,6 +12,12 @@ def search():
         body = [body]
 
     results = []
+    summary = {
+        "total": len(body),
+        "success": 0,
+        "failed": 0,
+        "error_details": {}
+    }
 
     for item in body:
         query = item.get("query")
@@ -20,6 +26,8 @@ def search():
 
         if not (query and username and password):
             results.append({"status": 400, "message": "query, username, password required"})
+            summary["failed"] += 1
+            summary["error_details"]["validation_error"] = summary["error_details"].get("validation_error", 0) + 1
             continue
 
         try:
@@ -29,12 +37,18 @@ def search():
             loop.close()
 
             if "error" in result:
+                is_rate_limit = result.get("is_rate_limit")
+                status_code = 429 if is_rate_limit else 500
+                error_type = "rate_limit" if is_rate_limit else "execution_error"
+                
                 results.append({
-                    "status": 500,
+                    "status": status_code,
                     "akun_username": username,
                     "status_akun": "inactive",
                     "error": result["error"]
                 })
+                summary["failed"] += 1
+                summary["error_details"][error_type] = summary["error_details"].get(error_type, 0) + 1
             else:
                 results.append({
                     "status": 200,
@@ -42,8 +56,14 @@ def search():
                     "status_akun": "active",
                     "data": result
                 })
+                summary["success"] += 1
 
         except Exception as e:
             results.append({"status": 500, "username": username, "error": str(e)})
+            summary["failed"] += 1
+            summary["error_details"]["unhandled_exception"] = summary["error_details"].get("unhandled_exception", 0) + 1
 
-    return jsonify(results)
+    return jsonify({
+        "summary": summary,
+        "results": results
+    })

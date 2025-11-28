@@ -2,6 +2,8 @@ import asyncio
 from twikit import Client
 from utils.tweet_mapper import get_place, mapping_tweet_data
 
+from twikit.errors import TooManyRequests
+
 async def search_tweets(query, username, password):
     try:
         client = Client("en-US")
@@ -24,5 +26,7 @@ async def search_tweets(query, username, password):
 
         return result
 
+    except TooManyRequests as e:
+        return {"error": "Rate limit exceeded", "rate_limit_reset": e.rate_limit_reset, "is_rate_limit": True}
     except Exception as e:
         return {"error": str(e)}
