@@ -77,6 +77,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
         "password": "optional_override"
     }
     ```
+*   **Validation**: Username must exist in the `accounts` table.
 *   **Response**: Structured JSON with summary of success/failed and saved data.
 
 ### 2. Monitoring Dashboard

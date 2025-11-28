@@ -4,6 +4,7 @@ from services.twitter_service import search_tweets
 
 from config import db_config
 from utils.database import save_tweets, log_activity
+from utils.account_manager import check_username_exists
 
 search_bp = Blueprint("search", __name__)
 
@@ -32,6 +33,18 @@ def search():
             summary["failed"] += 1
             summary["error_details"]["validation_error"] = summary["error_details"].get("validation_error", 0) + 1
             log_activity(db_config, username or "unknown", "failed", "Validation error: missing fields")
+            continue
+
+        # Validate username exists in database
+        if not check_username_exists(db_config, username):
+            results.append({
+                "status": 403,
+                "message": f"Username '{username}' not found in database",
+                "username": username
+            })
+            summary["failed"] += 1
+            summary["error_details"]["username_not_found"] = summary["error_details"].get("username_not_found", 0) + 1
+            log_activity(db_config, username, "failed", f"Username validation failed: '{username}' not found in database")
             continue
 
         try:
