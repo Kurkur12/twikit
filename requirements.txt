@@ -1,0 +1,6 @@
+-e git+https://github.com/dwiHard/twikit.git#egg=twikit
+mistune==3.1.2
+mysql-connector-python==9.5.0
+requests==2.32.5
+Flask[async]==2.3.3
+Werkzeug==2.3.7
