@@ -1,7 +1,7 @@
 from flask import Flask
 from routes.search_route import search_bp
 from routes.monitoring_route import monitoring_bp
-#from scheduler_job import start_scheduler
+from scheduler_job import start_scheduler
 from config import API_PORT
 
 app = Flask(__name__)
@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.register_blueprint(search_bp)
 app.register_blueprint(monitoring_bp)
 
-#start_scheduler()
+start_scheduler()
 
 @app.route("/")
 def home():

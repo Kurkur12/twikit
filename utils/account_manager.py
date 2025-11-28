@@ -74,3 +74,24 @@ def add_account(db_config, username, password, email=None):
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
+
+def check_username_exists(db_config, username):
+    """Check if a username exists in the database"""
+    conn = None
+    cursor = None
+    exists = False
+    try:
+        conn = get_connection(db_config)
+        cursor = conn.cursor()
+        
+        query = "SELECT 1 FROM accounts WHERE username = %s"
+        cursor.execute(query, (username,))
+        exists = cursor.fetchone() is not None
+        
+    except Error as e:
+        print(f"Error checking username: {e}")
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+    
+    return exists

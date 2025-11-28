@@ -3,7 +3,7 @@ import random
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import SEARCH_URL, db_config
 from utils.database import get_connection
-from utils.account_manager import get_active_account
+from utils.account_manager import get_active_account, check_username_exists
 
 hit_counter = 0
 
@@ -48,14 +48,19 @@ def auto_hit():
     print(f"   👤 Account: {account['username']}")
     print(f"   🔍 Keyword: {keyword}")
 
-    # 3. Prepare Payload
+    # 3. Validate Username in DB
+    if not check_username_exists(db_config, account['username']):
+        print(f"   ❌ Validation Failed: Username '{account['username']}' not found in DB.")
+        return
+
+    # 4. Prepare Payload
     body = [{
         "username": account['username'],
         "password": account['password'],
         "query": keyword
     }]
 
-    # 4. Execute Request
+    # 5. Execute Request
     try:
         res = requests.post(SEARCH_URL, json=body, timeout=30)
         if res.status_code == 200:

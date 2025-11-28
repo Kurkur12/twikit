@@ -36,7 +36,7 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
 │
 └── utils/                  # Utilities
     ├── database.py         # DB Connection & Helpers
-    ├── account_manager.py  # Account Selection & Updates
+    ├── account_manager.py  # Account Selection, Validation & Updates
     └── tweet_mapper.py     # Data Normalization
 ```
 
@@ -91,4 +91,5 @@ A robust, modular Flask-based API for scraping and monitoring Twitter/X data. Th
 The scheduler is defined in `scheduler_job.py`. To enable it, uncomment `start_scheduler()` in `main.py`. It will automatically:
 1.  Pick a random active account.
 2.  Pick a random active keyword.
-3.  Perform a search and save results.
+3.  Validate the username exists in the database.
+4.  Perform a search and save results.
