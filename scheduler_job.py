@@ -10,10 +10,25 @@ def auto_hit():
 
     print(f"\n🔥 Auto Hit #{hit_counter}")
 
+    print(f"\n🔥 Auto Hit #{hit_counter}")
+
+    from config import db_config
+    from utils.account_manager import get_active_account
+
+    account = get_active_account(db_config)
+    
+    if not account:
+        print("⚠️ No active accounts available!")
+        return
+
+    query = "produktivitas pertanian lang:id"
+    
     body = [
-        {"password": "1q2w3e4r5T.", "query": "produktivitas pertanian lang:id", "username": "@Fake01Proj68697"},
-        {"password": "1q2w3e4r5T.", "query": "produktivitas pertanian lang:id", "username": "@PFake0281129"},
-        {"password": "1q2w3e4r5T.", "query": "produktivitas pertanian lang:id", "username": "@PFake0379178"}
+        {
+            "username": account['username'],
+            "password": account['password'],
+            "query": query
+        }
     ]
 
     try:

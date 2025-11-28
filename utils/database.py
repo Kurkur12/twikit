@@ -15,7 +15,6 @@ def init_db(db_config):
         with open('schema.sql', 'r') as f:
             schema = f.read()
             
-        # Split commands by semicolon and execute individually
         commands = schema.split(';')
         for command in commands:
             if command.strip():
@@ -55,7 +54,6 @@ def save_tweets(db_config, tweets):
         
         values = []
         for t in tweets:
-            # Safely get values with defaults
             val = (
                 t.get('id'), t.get('created_at_datetime'), t.get('user_id'), t.get('user_name'), t.get('user_screen_name'),
                 t.get('text'), t.get('lang'), t.get('retweet_count', 0), t.get('favorite_count', 0), t.get('reply_count', 0),

@@ -55,7 +55,6 @@ def search():
                 summary["error_details"][error_type] = summary["error_details"].get(error_type, 0) + 1
                 log_activity(db_config, username, "failed", result["error"])
             else:
-                # Save to database
                 saved_count = save_tweets(db_config, result)
                 
                 results.append({

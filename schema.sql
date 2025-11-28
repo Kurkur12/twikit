@@ -26,8 +26,19 @@ CREATE TABLE IF NOT EXISTS tweets (
 CREATE TABLE IF NOT EXISTS scraping_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     account_username VARCHAR(255),
-    status VARCHAR(50), -- 'success', 'failed', 'rate_limit'
+    status VARCHAR(50),
     message TEXT,
     tweets_count INT DEFAULT 0,
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'active',
+    last_used TIMESTAMP NULL,
+    rate_limit_reset TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

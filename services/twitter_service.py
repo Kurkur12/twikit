@@ -27,6 +27,13 @@ async def search_tweets(query, username, password):
         return result
 
     except TooManyRequests as e:
+        from config import db_config
+        from utils.account_manager import update_account_status
+        from datetime import datetime, timedelta
+        
+        reset_time = datetime.fromtimestamp(e.rate_limit_reset) if e.rate_limit_reset else datetime.now() + timedelta(minutes=15)
+        
+        update_account_status(db_config, username, "rate_limited", reset_time)
         return {"error": "Rate limit exceeded", "rate_limit_reset": e.rate_limit_reset, "is_rate_limit": True}
     except Exception as e:
         return {"error": str(e)}
