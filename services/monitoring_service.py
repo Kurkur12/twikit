@@ -1,47 +1,88 @@
-import time
-import json
-import requests
 from utils.database import get_connection
-from config import db_config, SEARCH_URL
+from config import db_config
 
-def run_monitoring():
-    conn = get_connection(db_config)
-    cursor = conn.cursor(dictionary=True)
+def get_dashboard_stats():
+    """Get global system statistics"""
+    conn = None
+    cursor = None
+    stats = {}
+    
+    try:
+        conn = get_connection(db_config)
+        cursor = conn.cursor(dictionary=True)
+        
+        # Total Tweets
+        cursor.execute("SELECT COUNT(*) as total FROM tweets")
+        stats['total_tweets'] = cursor.fetchone()['total']
+        
+        # Success vs Failed (Last 24h)
+        cursor.execute("""
+            SELECT 
+                SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as success_count,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_count
+            FROM scraping_logs 
+            WHERE executed_at >= NOW() - INTERVAL 1 DAY
+        """)
+        counts = cursor.fetchone()
+        stats['today_success'] = counts['success_count'] or 0
+        stats['today_failed'] = counts['failed_count'] or 0
+        
+    except Exception as e:
+        print(f"Error getting stats: {e}")
+        stats = {'error': str(e)}
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+        
+    return stats
 
-    cursor.execute("SELECT name, PASSWORD FROM DATA_LOGIN")
-    users = cursor.fetchall()
+def get_account_health():
+    """Get status of all accounts"""
+    conn = None
+    cursor = None
+    accounts = []
+    
+    try:
+        conn = get_connection(db_config)
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT username, status, last_used, rate_limit_reset 
+            FROM accounts 
+            ORDER BY last_used DESC
+        """)
+        accounts = cursor.fetchall()
+        
+    except Exception as e:
+        print(f"Error getting accounts: {e}")
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+        
+    return accounts
 
-    all_results = []
-
-    for i, user in enumerate(users, 1):
-        payload = {
-            "query": "prabowo",
-            "username": user["name"],
-            "password": user["PASSWORD"]
-        }
-
-        try:
-            res = requests.post(SEARCH_URL, json=payload, timeout=(3, 15))
-
-            if res.status_code == 200:
-                status = 1
-            else:
-                status = 0
-
-            up = conn.cursor()
-            up.execute("UPDATE DATA_LOGIN SET valid=%s WHERE name=%s", (status, user["name"]))
-            conn.commit()
-            up.close()
-
-            all_results.append(res.json())
-
-        except Exception as e:
-            all_results.append({"name": user["name"], "error": str(e)})
-
-        if i < len(users):
-            time.sleep(0.3)
-
-    cursor.close()
-    conn.close()
-
-    return all_results
+def get_recent_logs(limit=10):
+    """Get recent activity logs"""
+    conn = None
+    cursor = None
+    logs = []
+    
+    try:
+        conn = get_connection(db_config)
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT account_username, status, message, tweets_count, executed_at 
+            FROM scraping_logs 
+            ORDER BY executed_at DESC 
+            LIMIT %s
+        """, (limit,))
+        logs = cursor.fetchall()
+        
+    except Exception as e:
+        print(f"Error getting logs: {e}")
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+        
+    return logs
