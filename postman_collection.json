@@ -1,0 +1,189 @@
+{
+    "info": {
+        "_postman_id": "cookie-decode-api-collection",
+        "name": "Cookie Decode API",
+        "description": "Collection untuk test Cookie Decode API - Twitter Scraping Project",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Decode Cookie - With Username",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "file",
+                            "type": "file",
+                            "src": "x.com_cookies.json",
+                            "description": "Cookie JSON file dari browser extension"
+                        },
+                        {
+                            "key": "username",
+                            "value": "@TestPostman",
+                            "type": "text",
+                            "description": "Username untuk penamaan file output"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:7777/decode",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "decode"
+                    ]
+                },
+                "description": "Upload cookie file dengan username parameter. File output akan bernama cookies_TestPostman.json"
+            },
+            "response": []
+        },
+        {
+            "name": "Decode Cookie - Auto Username",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "file",
+                            "type": "file",
+                            "src": "x.com_cookies.json",
+                            "description": "Cookie JSON file dari browser extension"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:7777/decode",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "decode"
+                    ]
+                },
+                "description": "Upload cookie file tanpa username. Username akan auto-extract dari cookie 'twid'"
+            },
+            "response": []
+        },
+        {
+            "name": "Error Test - No File",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": []
+                },
+                "url": {
+                    "raw": "http://localhost:7777/decode",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "decode"
+                    ]
+                },
+                "description": "Test error handling ketika tidak ada file yang di-upload. Expected: 400 Bad Request"
+            },
+            "response": []
+        },
+        {
+            "name": "Error Test - Invalid File Type",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "file",
+                            "type": "file",
+                            "src": "test.txt",
+                            "description": "File non-JSON untuk test error handling"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:7777/decode",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "decode"
+                    ]
+                },
+                "description": "Test error handling ketika file bukan .json. Expected: 400 Bad Request"
+            },
+            "response": []
+        },
+        {
+            "name": "Search Tweets (Bonus)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"query\": \"keyword lang:id\",\n    \"username\": \"your_username\",\n    \"password\": \"your_password\"\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:7777/search",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "search"
+                    ]
+                },
+                "description": "Bonus: Endpoint untuk scraping tweets. Gunakan cookie yang sudah di-decode."
+            },
+            "response": []
+        },
+        {
+            "name": "Monitoring Dashboard (Bonus)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:7777/monitoring",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "7777",
+                    "path": [
+                        "monitoring"
+                    ]
+                },
+                "description": "Bonus: Endpoint untuk monitoring system stats dan account health"
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:7777",
+            "type": "string"
+        }
+    ]
+}
